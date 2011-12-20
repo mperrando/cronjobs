@@ -1,3 +1,116 @@
 = Cronjobs
 
-This project rocks and uses MIT-LICENSE.
+Cronjobs is a Rails plugin that allows to schedule tasks with a cronjob-like
+syntax.
+
+This plugin was inspired by the Taskit[https://github.com/Swirrl/Taskit] plugin.
+
+Up to now schedules no more fine than the day is available.
+
+= Install and setup
+
+== Gem
+
+Add this line to your Gemfile
+
+ gem 'cronjobs', :git => 'git://github.com/mperrando/cronjobs.git'
+
+and run bundler
+
+ bundle
+
+== Database
+
+Create the migrations and run them.
+
+ rails g schedules_migration
+ rake db:migrate
+
+== System cron
+
+You need to schedule a system cronjob that runs the rake task
+<tt>cronjobs:run</tt> with the desired periodicity.
+
+This rake task looks for jobs whos schedules are not yet run, schedules them
+and then runs the execution engine that executes alla scheduled jobs
+not already launched.
+
+Add to you crontab a line that invokes the cronjobs main task.
+The periodicity of the cronjob must depend on the finer granularity
+of your scheduled tasks.
+
+In this example, the rake task is invoked each night at 1:10 AM.
+
+ 10 1 * * * cd <your_project> && RAILS_ENV=<env> rake cronjobs:run
+
+= Usage
+
+Create you cronjob
+
+ class MyCronjob < ActiveRecord::Base
+     acts_as_cronjob
+
+     def execute
+         #place your code here
+     end
+ end
+
+Then create one or more schedules for one of these cronjobs.
+First of all create one job
+
+ job = MyCronjob.new
+
+Then create a schedule for it
+
+ sch = Cronjobs::Schedule.new(job)
+
+
+You can access the schedules created for a single cronjob
+  
+ job.schedules
+
+In the case the attribute +schedules+ must represent something else in your
+model, you can change the attribute name to access the schedules with the
+option +:as+
+
+ class MyCronjob < ActiveRecord::Base
+     acts_as_cronjob, :as => :programs
+ end
+
+and access the schedules with
+
+ job.programs
+
+== Executions
+
+Each +schedule+ has an execution list, each element representing an execution of
+that schedule.
+
+= Internal
+
+== Scheduler
+
+The schedueler calculates, for each all the schedules, the most recent moment in
+which the schedule shold have run. Then it looks for the schedules whose
++last_scheduled_at+ attribute is *before* that moment and creates a new
++execution+ for each of them.
+
+NOTE: if the same job has two (or more) schedules, and such schedules implies that
+it runs at the same moment, then the job will be launched twice (or more times).
+
+== Executor
+
+The executor takes care of running the executions that are scheduled by the
+scheduler.
+
+=== DirectExecutor
+
+This is the first, simple implmentation for an executor.
+
+The executor looks for all the executions that are not launched yet, and simply
+launches them, one after the other, in a single threaded style.
+
+= TODO
+* support scheduling for finer intervals, up to the minute.
+* add new <tt>Executor</tt>s that allow to run the jobs on external queueing
+  engines such as beanstalkd[http://kr.github.com/beanstalkd/].

@@ -4,3 +4,7 @@ pkg/
 test/dummy/db/*.sqlite3
 test/dummy/log/*.log
 test/dummy/tmp/
+*.sw?
+test/dummy/db/migrate/*_create_cronjob_scehdules.rb
+test/dummy/db/migrate/*_create_cronjob_executions.rb
+test/dummy/db/schema.rb

@@ -38,6 +38,11 @@ GEM
     arel (2.2.1)
     builder (3.0.0)
     erubis (2.7.0)
+    factory_girl (2.3.2)
+      activesupport
+    factory_girl_rails (1.4.0)
+      factory_girl (~> 2.3.0)
+      railties (>= 3.0.0)
     hike (1.2.1)
     i18n (0.6.0)
     json (1.6.3)
@@ -45,7 +50,10 @@ GEM
       i18n (>= 0.4.0)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
+    metaclass (0.0.1)
     mime-types (1.17.2)
+    mocha (0.10.0)
+      metaclass (~> 0.0.1)
     multi_json (1.0.4)
     polyglot (0.3.3)
     rack (1.3.5)
@@ -92,4 +100,6 @@ PLATFORMS
 
 DEPENDENCIES
   cronjobs!
+  factory_girl_rails
+  mocha
   sqlite3
